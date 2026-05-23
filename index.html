@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Trip — France &amp; Spain · August 2026</title>
+<meta name="description" content="A fifteen-day road trip through France and Spain — the Basque coast, Gascony, the Tarn, Carcassonne and the Catalan Mediterranean. August 2026.">
+<meta property="og:title" content="Our Trip — France &amp; Spain · August 2026">
+<meta property="og:description" content="A fifteen-day road trip — Bilbao, San Sebastián, Eugénie-les-Bains, the Tarn, Carcassonne, Collioure.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#b8261d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;0,9..144,900;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --cream: #f5ecd9;
+    --sunset: #e85d3e;
+    --deep-red: #b8261d;
+    --ochre: #d4a548;
+    --mustard: #e8b540;
+    --teal: #1d6e6e;
+    --deep-blue: #1a3a5c;
+    --forest: #3d6e3f;
+    --olive: #7a8c4f;
+    --terracotta: #c66a3d;
+    --muted: #6b6859;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .display {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    background: var(--deep-red);
+    color: var(--cream);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 80px 32px;
+  }
+
+  .hero-mountain {
+    position: absolute;
+    bottom: 0;
+    right: -5%;
+    width: 70%;
+    max-width: 700px;
+    height: 60%;
+    background: var(--mustard);
+    clip-path: polygon(0 100%, 25% 35%, 45% 60%, 65% 10%, 100% 100%);
+    z-index: 1;
+    opacity: 0.95;
+  }
+
+  .hero-stars {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .hero-stars span {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--cream);
+    border-radius: 50%;
+    opacity: 0.85;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 3;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--mustard);
+    margin-bottom: 32px;
+  }
+
+  .hero h1 {
+    font-size: clamp(80px, 18vw, 220px);
+    color: var(--cream);
+    margin-bottom: 16px;
+    letter-spacing: -0.04em;
+  }
+
+  .hero-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(28px, 5vw, 52px);
+    color: var(--mustard);
+    margin-bottom: 56px;
+    line-height: 1.1;
+  }
+
+  .hero-route {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: clamp(14px, 1.6vw, 17px);
+    letter-spacing: 0.04em;
+    color: var(--cream);
+    opacity: 0.92;
+    max-width: 620px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  .hero-dates {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: clamp(15px, 1.8vw, 20px);
+    letter-spacing: 0.18em;
+    color: var(--mustard);
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    color: var(--cream);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 600;
+    opacity: 0.7;
+    text-align: center;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  .scroll-hint .chevron {
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: 10px auto 0;
+    border-right: 2px solid var(--cream);
+    border-bottom: 2px solid var(--cream);
+    transform: rotate(45deg);
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, 8px); }
+  }
+
+  /* ---------- ROUTE SECTION ---------- */
+  .route {
+    background: var(--cream);
+    padding: 120px 0;
+  }
+
+  .section-head {
+    margin-bottom: 60px;
+  }
+
+  .section-head .eyebrow { color: var(--deep-red); margin-bottom: 20px; }
+
+  .section-head h2 {
+    font-size: clamp(40px, 6vw, 72px);
+    color: var(--ink);
+    max-width: 720px;
+  }
+
+  #map {
+    height: 500px;
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px -20px rgba(26,26,46,0.25);
+    overflow: hidden;
+    margin-bottom: 60px;
+    background: #e8e0cc;
+  }
+
+  .leaflet-tile-pane { filter: sepia(0.15) saturate(0.85) brightness(1.02); }
+  .leaflet-popup-content-wrapper {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  }
+  .leaflet-popup-tip { background: var(--ink); }
+  .leaflet-popup-content {
+    margin: 12px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .leaflet-popup-content strong {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .leaflet-popup-content .pop-date {
+    color: var(--mustard);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .map-marker {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 3px solid var(--cream);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .map-marker.lunch {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+    border-style: dashed;
+    background: var(--ochre) !important;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .stat {
+    padding: 36px 24px;
+    border-radius: 14px;
+    color: var(--cream);
+    text-align: left;
+  }
+  .stat:nth-child(1) { background: var(--deep-red); }
+  .stat:nth-child(2) { background: var(--sunset); }
+  .stat:nth-child(3) { background: var(--teal); }
+  .stat:nth-child(4) { background: var(--ochre); color: var(--ink); }
+
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+  }
+  .stat-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.92;
+  }
+
+  /* ---------- OVERVIEW TABLE ---------- */
+  .overview {
+    background: var(--ink);
+    padding: 120px 0;
+    color: var(--cream);
+  }
+  .overview .section-head .eyebrow { color: var(--mustard); }
+  .overview .section-head h2 { color: var(--cream); }
+
+  .overview-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .overview-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1.5fr 1fr 1.3fr;
+    gap: 24px;
+    padding: 28px 32px;
+    border: none;
+    width: 100%;
+    text-align: left;
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: transform 0.25s ease, filter 0.25s ease;
+    align-items: center;
+    font-size: 16px;
+  }
+  .overview-row:hover { transform: translateX(8px); filter: brightness(1.1); }
+
+  .overview-row .or-date { font-weight: 600; letter-spacing: 0.04em; opacity: 0.95; }
+  .overview-row .or-place {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: clamp(20px, 2.4vw, 28px);
+    letter-spacing: -0.01em;
+  }
+  .overview-row .or-days { font-weight: 600; opacity: 0.92; }
+  .overview-row .or-region { font-style: italic; opacity: 0.92; font-family: 'Fraunces', serif; }
+
+  .overview-row.r-sunset { background: var(--sunset); }
+  .overview-row.r-forest { background: var(--forest); }
+  .overview-row.r-olive  { background: var(--olive); }
+  .overview-row.r-terracotta { background: var(--terracotta); }
+  .overview-row.r-teal   { background: var(--teal); }
+  .overview-row.r-deep-blue { background: var(--deep-blue); }
+
+  /* ---------- STOP SECTIONS ---------- */
+  .stop { background: var(--cream); }
+
+  .stop-hero {
+    padding: 80px 32px;
+    color: var(--cream);
+    position: relative;
+    overflow: hidden;
+  }
+  .stop-hero-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: end;
+  }
+  .stop-hero .eyebrow { color: var(--cream); opacity: 0.85; margin-bottom: 20px; }
+  .stop-hero h2 {
+    font-size: clamp(48px, 8vw, 110px);
+    line-height: 0.95;
+    color: var(--cream);
+  }
+  .stop-number {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(100px, 18vw, 240px);
+    line-height: 0.8;
+    opacity: 0.22;
+    color: var(--cream);
+    letter-spacing: -0.04em;
+  }
+
+  .stop-s-sunset { background: var(--sunset); }
+  .stop-s-forest { background: var(--forest); }
+  .stop-s-olive  { background: var(--olive); }
+  .stop-s-terracotta { background: var(--terracotta); }
+  .stop-s-teal   { background: var(--teal); }
+  .stop-s-deep-blue { background: var(--deep-blue); }
+
+  .stop-body {
+    padding: 72px 32px 120px;
+  }
+  .stop-body-inner {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .stop-dates {
+    font-family: 'Inter', sans-serif;
+    color: var(--deep-red);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-size: 15px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .stop-hotel {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 18px;
+    margin-bottom: 28px;
+  }
+
+  .stop-strip {
+    display: inline-block;
+    padding: 14px 22px;
+    color: var(--cream);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    margin-bottom: 40px;
+  }
+  .strip-sunset { background: var(--sunset); }
+  .strip-forest { background: var(--forest); }
+  .strip-olive  { background: var(--olive); }
+  .strip-terracotta { background: var(--terracotta); }
+  .strip-teal   { background: var(--teal); }
+  .strip-deep-blue { background: var(--deep-blue); }
+
+  .stop-prose p {
+    font-size: 18px;
+    line-height: 1.75;
+    color: var(--ink);
+    margin-bottom: 20px;
+    max-width: 680px;
+  }
+  .stop-prose p strong { font-weight: 700; }
+
+  .highlights-head {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 13px;
+    color: var(--ink);
+    margin: 56px 0 24px;
+  }
+
+  .highlights {
+    list-style: none;
+    padding: 0;
+  }
+  .highlights li {
+    position: relative;
+    padding: 10px 0 10px 28px;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink);
+    border-bottom: 1px solid rgba(26,26,46,0.08);
+  }
+  .highlights li:last-child { border-bottom: none; }
+  .highlights li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 18px;
+    width: 12px;
+    height: 12px;
+  }
+  .bullets-sunset li::before { background: var(--sunset); }
+  .bullets-forest li::before { background: var(--forest); }
+  .bullets-olive  li::before { background: var(--olive); }
+  .bullets-terracotta li::before { background: var(--terracotta); }
+  .bullets-teal   li::before { background: var(--teal); }
+  .bullets-deep-blue li::before { background: var(--deep-blue); }
+
+  /* ---------- NAV DOTS ---------- */
+  .nav-dots {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .nav-dots a {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(26,26,46,0.25);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  .nav-dots a:hover, .nav-dots a.active {
+    background: var(--deep-red);
+    transform: scale(1.4);
+  }
+  .nav-dots a::after {
+    content: attr(data-label);
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    font-weight: 600;
+  }
+  .nav-dots a:hover::after { opacity: 1; }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    background: var(--ink);
+    color: var(--muted);
+    padding: 60px 32px;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* ---------- FADE-IN ---------- */
+  .fade {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .fade.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 800px) {
+    .container { padding: 0 24px; }
+    .route, .overview { padding: 80px 0; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stop-hero { padding: 60px 24px; }
+    .stop-hero-inner {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+    .stop-number { order: -1; font-size: clamp(80px, 28vw, 140px); opacity: 0.18; }
+    .stop-body { padding: 56px 24px 90px; }
+    .stop-prose p { font-size: 16px; }
+    .overview-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 24px;
+    }
+    .overview-row .or-place { font-size: 24px; }
+    .nav-dots { display: none; }
+    #map { height: 420px; }
+    .hero-mountain { width: 95%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Nav dots ===== -->
+<nav class="nav-dots" aria-label="Section navigation">
+  <a href="#hero" data-label="Cover" class="active"></a>
+  <a href="#route" data-label="Route"></a>
+  <a href="#overview" data-label="Overview"></a>
+  <a href="#stop-1" data-label="San Sebastián"></a>
+  <a href="#stop-2" data-label="Eugénie"></a>
+  <a href="#stop-3" data-label="Fiac"></a>
+  <a href="#stop-4" data-label="Carcassonne"></a>
+  <a href="#stop-5" data-label="Collioure"></a>
+  <a href="#stop-6" data-label="Bilbao"></a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="hero-mountain" aria-hidden="true"></div>
+  <div class="hero-stars" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="eyebrow">A Fifteen-Day Road Trip</div>
+    <h1>Our Trip</h1>
+    <div class="hero-sub">through France &amp; Spain</div>
+    <p class="hero-route">Ferry to Bilbao · The Basque coast · Gascony · The Tarn · Carcassonne · The Catalan Med</p>
+    <div class="hero-dates">6 — 20 August · 2026</div>
+  </div>
+  <a href="#route" class="scroll-hint" aria-label="Scroll down">
+    Scroll
+    <span class="chevron"></span>
+  </a>
+</section>
+
+<!-- ===== ROUTE ===== -->
+<section class="route" id="route">
+  <div class="container">
+    <div class="section-head fade">
+      <div class="eyebrow">The Route</div>
+      <h2>Two weeks, two countries,<br>one car.</h2>
+    </div>
+    <div id="map" class="fade" aria-label="Map of the route"></div>
+    <div class="stats fade">
+      <div class="stat"><div class="stat-num">15</div><div class="stat-label">Days</div></div>
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Hotels</div></div>
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">Countries</div></div>
+      <div class="stat"><div class="stat-num">~2,000</div><div class="stat-label">KM Driven</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OVERVIEW ===== -->
+<section class="overview" id="overview">
+  <div class="container">
+    <div class="section-head fade">
+      <div class="eyebrow">The Itinerary</div>
+      <h2>Six stops, in order.</h2>
+    </div>
+    <div class="overview-rows fade">
+      <a class="overview-row r-sunset" href="#stop-1">
+        <span class="or-date">Thu 6 — Sat 8 Aug</span>
+        <span class="or-place">San Sebastián</span>
+        <span class="or-days">3 days · 2 nights</span>
+        <span class="or-region">Basque coast</span>
+      </a>
+      <a class="overview-row r-forest" href="#stop-2">
+        <span class="or-date">Sat 8 — Mon 10 Aug</span>
+        <span class="or-place">Eugénie-les-Bains</span>
+        <span class="or-days">1 full day</span>
+        <span class="or-region">Gascony spa</span>
+      </a>
+      <a class="overview-row r-olive" href="#stop-3">
+        <span class="or-date">Mon 10 — Wed 12 Aug</span>
+        <span class="or-place">Château de Fiac</span>
+        <span class="or-days">1 full day</span>
+        <span class="or-region">Tarn château</span>
+      </a>
+      <a class="overview-row r-terracotta" href="#stop-4">
+        <span class="or-date">Wed 12 — Fri 14 Aug</span>
+        <span class="or-place">Carcassonne</span>
+        <span class="or-days">2 days · 2 nights</span>
+        <span class="or-region">Medieval cité</span>
+      </a>
+      <a class="overview-row r-teal" href="#stop-5">
+        <span class="or-date">Fri 14 — Mon 17 Aug</span>
+        <span class="or-place">Collioure</span>
+        <span class="or-days">4 days · 3 nights</span>
+        <span class="or-region">Mediterranean</span>
+      </a>
+      <a class="overview-row r-deep-blue" href="#stop-6">
+        <span class="or-date">Mon 17 — Thu 20 Aug</span>
+        <span class="or-place">Bilbao</span>
+        <span class="or-days">3 days · 3 nights</span>
+        <span class="or-region">Return + Guggenheim</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STOP 1 — San Sebastián ===== -->
+<section class="stop" id="stop-1">
+  <div class="stop-hero stop-s-sunset">
+    <div class="stop-hero-inner">
+      <div>
+        <div class="eyebrow">Stop One · Basque Coast</div>
+        <h2>San Sebastián</h2>
+      </div>
+      <div class="stop-number">01</div>
+    </div>
+  </div>
+  <div class="stop-body">
+    <div class="stop-body-inner fade">
+      <div class="stop-dates">Thursday 6 — Saturday 8 August · 3 days, 2 nights</div>
+      <div class="stop-hotel">Lasala Plaza Hotel — Plaza de la Constitución · in the heart of the Parte Vieja</div>
+      <div class="stop-strip strip-sunset">3 Days · 2 Nights · Lasala Plaza Hotel</div>
+      <div class="stop-prose">
+        <p>Off the ferry on Thursday afternoon and an hour east along the Basque coast to one of Europe's great food cities. The hotel is bang in the middle of the Old Town — two minutes' walk from the harbour, La Concha beach, and the legendary pintxos bars.</p>
+        <p>A leisurely Saturday morning before driving on — Boulevard coffee, maybe one last pintxos lunch before pointing the car north into France.</p>
+      </div>
+      <div class="highlights-head">Highlights</div>
+      <ul class="highlights bullets-sunset">
+        <li>Pintxos crawl — Bar Néstor's txuleta &amp; tomato salad, Bar Goiz Argi prawn brochettes, La Cuchara de San Telmo octopus</li>
+        <li>Sunset from Monte Igueldo over La Concha bay</li>
+        <li>Morning swim or stroll along Playa de la Concha</li>
+        <li>Dinner at a sit-down asador if we fancy a slow evening</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STOP 2 — Eugénie ===== -->
+<section class="stop" id="stop-2">
+  <div class="stop-hero stop-s-forest">
+    <div class="stop-hero-inner">
+      <div>
+        <div class="eyebrow">Stop Two · Gascony</div>
+        <h2>Les Prés d'Eugénie</h2>
+      </div>
+      <div class="stop-number">02</div>
+    </div>
+  </div>
+  <div class="stop-body">
+    <div class="stop-body-inner fade">
+      <div class="stop-dates">Saturday 8 — Monday 10 August · 1 full day</div>
+      <div class="stop-hotel">Les Prés d'Eugénie — Relais &amp; Châteaux · Empress Eugénie's old spa village</div>
+      <div class="stop-strip strip-forest">1 Full Day · Les Prés d'Eugénie</div>
+      <div class="stop-prose">
+        <p>Two hours north from San Sebastián into the deep green countryside of the Landes. Michel Guérard's beloved Relais &amp; Châteaux — a constellation of gardens, salons, three restaurants and a spa across the village.</p>
+        <p>Wine country at the doorstep: Madiran reds, Pacherenc whites, Armagnac just over the next hill.</p>
+      </div>
+      <div class="highlights-head">Highlights</div>
+      <ul class="highlights bullets-forest">
+        <li>Dinner at the gastronomic restaurant — the Guérard legacy under Hugo Souchet</li>
+        <li>Lighter lunch at La Ferme aux Grives, the family bistro</li>
+        <li>Tasting at Plaimont (Saint-Mont) — pre-phylloxera vines, rare grape varieties</li>
+        <li>Optional Armagnac tour at Domaine Duffau in Eauze</li>
+        <li>Spa &amp; pool afternoons</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STOP 3 — Château de Fiac ===== -->
+<section class="stop" id="stop-3">
+  <div class="stop-hero stop-s-olive">
+    <div class="stop-hero-inner">
+      <div>
+        <div class="eyebrow">Stop Three · The Tarn</div>
+        <h2>Château de Fiac</h2>
+      </div>
+      <div class="stop-number">03</div>
+    </div>
+  </div>
+  <div class="stop-body">
+    <div class="stop-body-inner fade">
+      <div class="stop-dates">Monday 10 — Wednesday 12 August · 1 full day</div>
+      <div class="stop-hotel">Château de Fiac Hôtel &amp; Spa — restored Languedoc château with infinity pool &amp; celebrated restaurant</div>
+      <div class="stop-strip strip-olive">1 Full Day · Château de Fiac</div>
+      <div class="stop-prose">
+        <p>East from Eugénie via lunch in Auch — the Gascon capital, duck-and-foie-gras country, with a UNESCO Gothic cathedral. Onwards into the rolling Tarn hills.</p>
+        <p>A quiet base with one of France's most extraordinary heritage cities, Albi, only thirty minutes north.</p>
+      </div>
+      <div class="highlights-head">Highlights</div>
+      <ul class="highlights bullets-olive">
+        <li>Auch lunch en route — Hôtel de France or La Table d'Oste for proper Gascon cooking</li>
+        <li>Albi: the world's largest brick cathedral &amp; the Musée Toulouse-Lautrec (1,000+ works)</li>
+        <li>Cordes-sur-Ciel — the medieval village in the sky</li>
+        <li>Afternoon spa &amp; infinity pool back at the château</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STOP 4 — Carcassonne ===== -->
+<section class="stop" id="stop-4">
+  <div class="stop-hero stop-s-terracotta">
+    <div class="stop-hero-inner">
+      <div>
+        <div class="eyebrow">Stop Four · Medieval Cité</div>
+        <h2>Carcassonne</h2>
+      </div>
+      <div class="stop-number">04</div>
+    </div>
+  </div>
+  <div class="stop-body">
+    <div class="stop-body-inner fade">
+      <div class="stop-dates">Wednesday 12 — Friday 14 August · 2 days, 2 nights</div>
+      <div class="stop-hotel">Hôtel du Château &amp; Spa — Teritoria · directly outside the walls of the UNESCO cité</div>
+      <div class="stop-strip strip-terracotta">2 Days · 2 Nights · Hôtel du Château</div>
+      <div class="stop-prose">
+        <p>Only an hour from Fiac. The largest fortified medieval city in Europe — double curtain walls, fifty-two towers, better than any film set. Our hotel sits right outside, with breakfast on a terrace facing the fortress.</p>
+        <p>Best at dusk, when the day-trippers leave and the stone turns gold.</p>
+      </div>
+      <div class="highlights-head">Highlights</div>
+      <ul class="highlights bullets-terracotta">
+        <li>Evening visit inside the Cité after the crowds leave</li>
+        <li>Cathar castle day: Peyrepertuse &amp; Quéribus on the dramatic limestone ridges</li>
+        <li>Or the four castles of Lastours as a half-day</li>
+        <li>Cassoulet supper at a proper old-town restaurant</li>
+        <li>Spa afternoon before the drive to the coast</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STOP 5 — Collioure ===== -->
+<section class="stop" id="stop-5">
+  <div class="stop-hero stop-s-teal">
+    <div class="stop-hero-inner">
+      <div>
+        <div class="eyebrow">Stop Five · Mediterranean</div>
+        <h2>Collioure</h2>
+      </div>
+      <div class="stop-number">05</div>
+    </div>
+  </div>
+  <div class="stop-body">
+    <div class="stop-body-inner fade">
+      <div class="stop-dates">Friday 14 — Monday 17 August · 4 days, 3 nights</div>
+      <div class="stop-hotel">Hôtel La Casa Païral — hidden retreat in the old quarter · garden &amp; pool</div>
+      <div class="stop-strip strip-teal">4 Days · 3 Nights · Hôtel La Casa Païral</div>
+      <div class="stop-prose">
+        <p>Down to the sea. The Catalan fishing village Matisse and Derain made famous, where the Pyrenees tumble into the Mediterranean. Bell tower with its feet in the water, Royal Castle on the harbour, terracotta rooftops, pebble beaches, apéro on the quay as the sun goes down.</p>
+        <p>Three nights — long enough to settle in properly, and to celebrate the anniversary somewhere in the middle.</p>
+      </div>
+      <div class="highlights-head">Highlights</div>
+      <ul class="highlights bullets-teal">
+        <li>Day trip into Spain: Cadaqués &amp; Cap de Creus — whitewashed Catalan village, Dalí's home, wild headland</li>
+        <li>Alternative day trip: Peyrepertuse Cathar castle</li>
+        <li><strong>Anniversary lunch on Sunday 16 August at La Balette · 12:30pm · Michelin-starred terrace over the bay</strong></li>
+        <li>Apéro at Les Templiers or Casa Reial on the harbour</li>
+        <li>Swimming off the beach by the church · sunset behind the castle</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STOP 6 — Pamplona & Bilbao ===== -->
+<section class="stop" id="stop-6">
+  <div class="stop-hero stop-s-deep-blue">
+    <div class="stop-hero-inner">
+      <div>
+        <div class="eyebrow">Stop Six · Return Via Pamplona</div>
+        <h2>Pamplona &amp; Bilbao</h2>
+      </div>
+      <div class="stop-number">06</div>
+    </div>
+  </div>
+  <div class="stop-body">
+    <div class="stop-body-inner fade">
+      <div class="stop-dates">Monday 17 — Thursday 20 August · 3 days, 3 nights</div>
+      <div class="stop-hotel">The Artist Grand Hotel of Art — directly opposite the Guggenheim · rooftop bar with museum views</div>
+      <div class="stop-strip strip-deep-blue">3 Days · 3 Nights · The Artist Grand Hotel</div>
+      <div class="stop-prose">
+        <p>West across northern Spain, breaking the long drive with a proper late lunch in Pamplona — a walk along the famous bull-run route, pintxos in Plaza del Castillo, the cathedral, and back on the road.</p>
+        <p>On to Bilbao for the last three nights. Our hotel sits directly opposite Frank Gehry's Guggenheim — rooftop looks straight at the titanium curves of the museum, riverside walk to the old town in fifteen minutes.</p>
+      </div>
+      <div class="highlights-head">Highlights</div>
+      <ul class="highlights bullets-deep-blue">
+        <li>Pamplona lunch — Bar Gaucho's Solomillo (once voted best pintxo in Spain) or Casa Otano</li>
+        <li>Guggenheim Bilbao — timed entry, ideally mid-morning for the atrium light</li>
+        <li>Pintxos in the Casco Viejo: Las Siete Calles, Plaza Nueva, Mercado de la Ribera</li>
+        <li>Day trip: San Juan de Gaztelugatxe — the chapel on the rocky island</li>
+        <li>Asador dinner — traditional grilled meats at a classic Basque steakhouse</li>
+        <li>Ferry home Thursday from Puerto de Bilbao at Santurtzi</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>France &amp; Spain · August 2026</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // ----- HERO STARS -----
+  (function(){
+    const stars = document.querySelector('.hero-stars');
+    const count = 60;
+    let html = '';
+    for (let i = 0; i < count; i++) {
+      const top = Math.random() * 100;
+      const left = Math.random() * 100;
+      const size = (Math.random() * 2 + 1).toFixed(1);
+      const op = (Math.random() * 0.6 + 0.3).toFixed(2);
+      html += `<span style="top:${top}%;left:${left}%;width:${size}px;height:${size}px;opacity:${op}"></span>`;
+    }
+    stars.innerHTML = html;
+  })();
+
+  // ----- LEAFLET MAP -----
+  const stops = [
+    { name: 'Bilbao',             coords: [43.2627, -2.9253], colour: '#1a3a5c', date: '6 Aug · Ferry arrives / 17–20 Aug · Return',  type: 'main' },
+    { name: 'San Sebastián',      coords: [43.3255, -1.9894], colour: '#e85d3e', date: '6 — 8 August',                                  type: 'main' },
+    { name: 'Eugénie-les-Bains',  coords: [43.6957, -0.3797], colour: '#3d6e3f', date: '8 — 10 August',                                 type: 'main' },
+    { name: 'Château de Fiac',    coords: [43.7023,  1.9048], colour: '#7a8c4f', date: '10 — 12 August',                                type: 'main' },
+    { name: 'Carcassonne',        coords: [43.2061,  2.3642], colour: '#c66a3d', date: '12 — 14 August',                                type: 'main' },
+    { name: 'Collioure',          coords: [42.5261,  3.0848], colour: '#1d6e6e', date: '14 — 17 August',                                type: 'main' },
+    { name: 'Pamplona',           coords: [42.8184, -1.6442], colour: '#d4a548', date: '17 August · Lunch stop',                        type: 'lunch' },
+  ];
+
+  const map = L.map('map', {
+    scrollWheelZoom: false,
+    zoomControl: true,
+  }).setView([43.25, 0.5], 6);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap',
+    maxZoom: 18,
+  }).addTo(map);
+
+  stops.forEach(s => {
+    const cls = s.type === 'lunch' ? 'map-marker lunch' : 'map-marker';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="${cls}" style="background:${s.colour}"></div>`,
+      iconSize: s.type === 'lunch' ? [18, 18] : [26, 26],
+      iconAnchor: s.type === 'lunch' ? [9, 9]  : [13, 13],
+    });
+    L.marker(s.coords, { icon })
+      .addTo(map)
+      .bindPopup(`<strong>${s.name}</strong><span class="pop-date">${s.date}</span>`);
+  });
+
+  // Driving order polyline: Bilbao → San Sebastián → Eugénie → Fiac → Carcassonne → Collioure → Pamplona → Bilbao
+  const route = [
+    [43.2627, -2.9253], // Bilbao
+    [43.3255, -1.9894], // San Sebastián
+    [43.6957, -0.3797], // Eugénie
+    [43.7023,  1.9048], // Fiac
+    [43.2061,  2.3642], // Carcassonne
+    [42.5261,  3.0848], // Collioure
+    [42.8184, -1.6442], // Pamplona
+    [43.2627, -2.9253], // back to Bilbao
+  ];
+  L.polyline(route, {
+    color: '#b8261d',
+    weight: 3,
+    opacity: 0.85,
+    dashArray: '6, 10',
+    lineJoin: 'round',
+  }).addTo(map);
+
+  // Fit bounds nicely
+  map.fitBounds(route, { padding: [40, 40] });
+
+  // ----- FADE-IN -----
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade').forEach(el => io.observe(el));
+
+  // ----- NAV DOT ACTIVE STATE -----
+  const dotLinks = document.querySelectorAll('.nav-dots a');
+  const sectionIds = Array.from(dotLinks).map(a => a.getAttribute('href').slice(1));
+  const sections = sectionIds.map(id => document.getElementById(id));
+
+  const navIo = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = sections.indexOf(e.target);
+        dotLinks.forEach(d => d.classList.remove('active'));
+        if (dotLinks[idx]) dotLinks[idx].classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => s && navIo.observe(s));
+</script>
+
+</body>
+</html>
